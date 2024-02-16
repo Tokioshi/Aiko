@@ -1,0 +1,8 @@
+# Files
+node_modules
+.env
+json.sqlite
+
+# Additional
+package-lock.json
+src/config/config.js
