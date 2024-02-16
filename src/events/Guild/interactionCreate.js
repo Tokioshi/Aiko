@@ -295,7 +295,7 @@ module.exports = {
         let author = await db.get(`ticket-author-${ch}`);
 
         interaction.channel.messages.fetch().then(async(messages) => {
-          output = Array.from(messages.values()).reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
+          output = Array.from(messages.values()).reverse().filter(m => !m.author.bot).map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
           let response;
 
           try {

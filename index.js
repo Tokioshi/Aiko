@@ -6,7 +6,8 @@ class Bot extends Client {
     super({
       intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
       ],
       presence: {
         activities: [{
