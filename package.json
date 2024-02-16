@@ -16,7 +16,8 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.4",
     "moment": "^2.30.1",
-    "quick.db": "^9.1.7"
+    "quick.db": "^9.1.7",
+    "sourcebin_js": "^0.0.3-ignore"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"

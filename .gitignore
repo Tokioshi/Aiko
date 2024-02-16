@@ -4,5 +4,4 @@ node_modules
 json.sqlite
 
 # Additional
-package-lock.json
 src/config/config.js
