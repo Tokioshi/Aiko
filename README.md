@@ -1,2 +1,2 @@
 # Aiko
-It's a beta version of Aiko. The released version is private.
+A Discord bot design for Nexus Arch.

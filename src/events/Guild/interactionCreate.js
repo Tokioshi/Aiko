@@ -44,7 +44,7 @@ module.exports = {
           await interaction.guild.channels.create({
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
-            parent: '1197551530874769530',
+            parent: interaction.client.config.ticket.parentId,
             permissionOverwrites: [
               {
                 id: interaction.guild.roles.everyone,
@@ -106,7 +106,7 @@ module.exports = {
           await interaction.guild.channels.create({
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
-            parent: '1197551530874769530',
+            parent: interaction.client.config.ticket.parentId,
             permissionOverwrites: [
               {
                 id: interaction.guild.roles.everyone,
@@ -168,7 +168,7 @@ module.exports = {
           await interaction.guild.channels.create({
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
-            parent: '1197551530874769530',
+            parent: interaction.client.config.ticket.parentId,
             permissionOverwrites: [
               {
                 id: interaction.guild.roles.everyone,
@@ -302,7 +302,7 @@ module.exports = {
             response = await sourcebin.create([
               {
                 name: 'Ticket',
-                content: output,
+                content: output || "There's no message fetched on the channel.",
                 languageId: 'text',
               }
             ], {
@@ -343,7 +343,7 @@ module.exports = {
               return;
             };
 
-            interaction.guild.channels.cache.get('1207951160594530345').send({
+            interaction.guild.channels.cache.get(interaction.client.config.ticket.transcriptId).send({
               embeds: [
                 new EmbedBuilder()
                 .setColor('Yellow')
@@ -451,23 +451,60 @@ module.exports = {
         let ch = await db.get(`channel-ticket-${interaction.channel.id}`);
         let author = await db.get(`ticket-author-${ch}`);
 
-        await interaction.channel.delete().then(async(deleted) => {
-          db.delete(`channel-ticket-${deleted.id}`);
+        interaction.channel.messages.fetch().then(async(messages) => {
+          output = Array.from(messages.values()).reverse().filter(m => !m.author.bot).map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
+          let response;
 
-          let check = await db.get(`ticket-claimed-${deleted.id}`);
-          let claimed = check  ? `${interaction.client.users.cache.get(check)}` : 'Tidak Diklaim';
-          let res = await db.get(`ticket-reason-${deleted.id}`);
-          let reason = res ? res : 'Tidak ada alasan yang ditentukan';
-          let date = new Date();
-
-          let user = await interaction.client.users.cache.get(author);
           try {
-            user.send({
+            response = await sourcebin.create([
+              {
+                name: 'Ticket',
+                content: output || "There's no message fetched on the channel.",
+                languageId: 'text',
+              }
+            ], {
+              title: `Chat transcript for ${interaction.channel.name}`,
+              description: `The ticket of ${interaction.client.users.cache.get(author).username}`
+            });
+          } catch (e) {
+            return console.log(e);
+          };
+
+          await interaction.channel.delete().then(async(deleted) => {
+            db.delete(`channel-ticket-${deleted.id}`);
+
+            let check = await db.get(`ticket-claimed-${deleted.id}`);
+            let claimed = check  ? `${interaction.client.users.cache.get(check)}` : 'Tidak Diklaim';
+            let res = await db.get(`ticket-reason-${deleted.id}`);
+            let reason = res ? res : 'Tidak ada alasan yang ditentukan';
+            let date = new Date();
+              
+            let user = await interaction.client.users.cache.get(author);
+            try {
+              user.send({
+                embeds: [
+                  new EmbedBuilder()
+                  .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL({ extension: 'png', forceStatic: true }) })
+                  .setTitle('Tiket Ditutup')
+                  .setColor('Yellow')
+                  .addFields(
+                    { name: '<:opened:1207606769392549929> Dibuka Oleh', value: `${interaction.client.users.cache.get(author)}`, inline: true },
+                    { name: '<:closed:1207606771590627339> Ditutup Oleh', value: `${interaction.user}`, inline: true },
+                    { name: '<:claimed:1207606773964480532> Diklaim Oleh', value: `${claimed}`, inline: true },
+                    { name: '<:reason:1207606776590245919> Alasan', value: `${reason}` }
+                  )
+                  .setFooter({ text: moment(date).format('MM/DD/YYYY h:mm A') })
+                ]
+              });
+            } catch (e) {
+              return;
+            };
+
+            interaction.guild.channels.cache.get(interaction.client.config.ticket.transcriptId).send({
               embeds: [
                 new EmbedBuilder()
-                .setAuthor({ name: interaction.guild.name, iconURL: interaction.guild.iconURL({ extension: 'png', forceStatic: true }) })
-                .setTitle('Tiket Ditutup')
                 .setColor('Yellow')
+                .setTitle('Ticket Transcript')
                 .addFields(
                   { name: '<:opened:1207606769392549929> Dibuka Oleh', value: `${interaction.client.users.cache.get(author)}`, inline: true },
                   { name: '<:closed:1207606771590627339> Ditutup Oleh', value: `${interaction.user}`, inline: true },
@@ -475,6 +512,15 @@ module.exports = {
                   { name: '<:reason:1207606776590245919> Alasan', value: `${reason}` }
                 )
                 .setFooter({ text: moment(date).format('MM/DD/YYYY h:mm A') })
+              ],
+              components: [
+                new ActionRowBuilder()
+                .addComponents(
+                  new ButtonBuilder()
+                  .setLabel('Transcript')
+                  .setStyle(ButtonStyle.Link)
+                  .setURL(response.url)
+                )
               ]
             });
             
@@ -482,11 +528,9 @@ module.exports = {
             await db.delete(`ticket-message-${deleted.id}`);
             await db.delete(`ticket-claimed-${deleted.id}`);
             await db.delete(`ticket-reason-${deleted.id}`);
-          } catch (error) {
-            return;
-          };
-
-          interaction.reply({ ephemeral: true });
+            
+            interaction.reply({ ephemeral: true });
+          });
         });
       };
     };
