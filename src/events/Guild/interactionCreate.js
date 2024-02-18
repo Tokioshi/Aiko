@@ -41,6 +41,17 @@ module.exports = {
     if(interaction.isStringSelectMenu()) {
       switch(interaction.values[0]) {
         case 'prize': {
+          await interaction.reply({
+            embeds: [
+              new EmbedBuilder()
+              .setTitle('Membuat Tiket')
+              .setColor('Yellow')
+              .setDescription(`Sedang membuat tiket milikmu...`)
+              .setFooter({ text: 'Harap jangan mainkan tiket!', iconURL: interaction.client.user.displayAvatarURL({ extension: 'png' }) })
+            ],
+            ephemeral: true
+          });
+
           await interaction.guild.channels.create({
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
@@ -89,7 +100,7 @@ module.exports = {
               await db.set(`ticket-author-${channel.id}`, interaction.user.id);
               await db.set(`ticket-message-${channel.id}`, msg.id);
 
-              interaction.reply({
+              await interaction.editReply({
                 embeds: [
                   new EmbedBuilder()
                   .setTitle('Tiket')
@@ -103,6 +114,17 @@ module.exports = {
           });
         } break;
         case 'help': {
+          await interaction.reply({
+            embeds: [
+              new EmbedBuilder()
+              .setTitle('Membuat Tiket')
+              .setColor('Yellow')
+              .setDescription(`Sedang membuat tiket milikmu...`)
+              .setFooter({ text: 'Harap jangan mainkan tiket!', iconURL: interaction.client.user.displayAvatarURL({ extension: 'png' }) })
+            ],
+            ephemeral: true
+          });
+
           await interaction.guild.channels.create({
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
@@ -151,7 +173,7 @@ module.exports = {
               await db.set(`ticket-author-${channel.id}`, interaction.user.id);
               await db.set(`ticket-message-${channel.id}`, msg.id);
 
-              interaction.reply({
+              await interaction.editReply({
                 embeds: [
                   new EmbedBuilder()
                   .setTitle('Tiket')
@@ -165,6 +187,17 @@ module.exports = {
           });
         } break;
         case 'partner': {
+          await interaction.reply({
+            embeds: [
+              new EmbedBuilder()
+              .setTitle('Membuat Tiket')
+              .setColor('Yellow')
+              .setDescription(`Sedang membuat tiket milikmu...`)
+              .setFooter({ text: 'Harap jangan mainkan tiket!', iconURL: interaction.client.user.displayAvatarURL({ extension: 'png' }) })
+            ],
+            ephemeral: true
+          });
+
           await interaction.guild.channels.create({
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
@@ -213,7 +246,7 @@ module.exports = {
               await db.set(`ticket-author-${channel.id}`, interaction.user.id);
               await db.set(`ticket-message-${channel.id}`, msg.id);
 
-              interaction.reply({
+              await interaction.editReply({
                 embeds: [
                   new EmbedBuilder()
                   .setTitle('Tiket')
