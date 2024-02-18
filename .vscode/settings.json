@@ -3,5 +3,6 @@
   "editor.fontFamily": "JetBrains Mono",
   "editor.tabSize": 2,
   "vscord.app.name": "Visual Studio Code",
-  "vscord.status.idle.check": false
+  "vscord.status.idle.check": false,
+  "vscord.enabled": true
 }

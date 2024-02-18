@@ -56,6 +56,7 @@ module.exports = {
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
             parent: interaction.client.config.ticket.parentId,
+            topic: `Klaim Hadiah`,
             permissionOverwrites: [
               {
                 id: interaction.guild.roles.everyone,
@@ -99,6 +100,10 @@ module.exports = {
               await db.set(`channel-ticket-${channel.id}`, channel.id);
               await db.set(`ticket-author-${channel.id}`, interaction.user.id);
               await db.set(`ticket-message-${channel.id}`, msg.id);
+              await db.set(`ticket-create-${channel.id}`, channel.createdTimestamp);
+              await db.add(`ticket-count`, 1);
+              let data = await db.get(`ticket-count`);
+              await db.set(`ticket-id-${channel.id}`, data);
 
               await interaction.editReply({
                 embeds: [
@@ -129,6 +134,7 @@ module.exports = {
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
             parent: interaction.client.config.ticket.parentId,
+            topic: 'Bantuan',
             permissionOverwrites: [
               {
                 id: interaction.guild.roles.everyone,
@@ -172,6 +178,10 @@ module.exports = {
               await db.set(`channel-ticket-${channel.id}`, channel.id);
               await db.set(`ticket-author-${channel.id}`, interaction.user.id);
               await db.set(`ticket-message-${channel.id}`, msg.id);
+              await db.set(`ticket-create-${channel.id}`, channel.createdTimestamp);
+              await db.add(`ticket-count`, 1);
+              let data = await db.get(`ticket-count`);
+              await db.set(`ticket-id-${channel.id}`, data);
 
               await interaction.editReply({
                 embeds: [
@@ -202,6 +212,7 @@ module.exports = {
             name: `ticket-${interaction.user.username}`,
             type: ChannelType.GuildText,
             parent: interaction.client.config.ticket.parentId,
+            topic: 'Partner',
             permissionOverwrites: [
               {
                 id: interaction.guild.roles.everyone,
@@ -245,6 +256,10 @@ module.exports = {
               await db.set(`channel-ticket-${channel.id}`, channel.id);
               await db.set(`ticket-author-${channel.id}`, interaction.user.id);
               await db.set(`ticket-message-${channel.id}`, msg.id);
+              await db.set(`ticket-create-${channel.id}`, channel.createdTimestamp);
+              await db.add(`ticket-count`, 1);
+              let data = await db.get(`ticket-count`);
+              await db.set(`ticket-id-${channel.id}`, data);
 
               await interaction.editReply({
                 embeds: [
@@ -354,6 +369,8 @@ module.exports = {
             let res = await db.get(`ticket-reason-${deleted.id}`);
             let reason = res ? res : 'Tidak ada alasan yang ditentukan';
             let date = new Date();
+            let dateCreated = await db.get(`ticket-create-${deleted.id}`);
+            let ticketId = await db.get(`ticket-id-${deleted.id}`);
               
             let user = await interaction.client.users.cache.get(author);
             try {
@@ -364,9 +381,12 @@ module.exports = {
                   .setTitle('Tiket Ditutup')
                   .setColor('Yellow')
                   .addFields(
-                    { name: '<:opened:1207606769392549929> Dibuka Oleh', value: `${interaction.client.users.cache.get(author)}`, inline: true },
-                    { name: '<:closed:1207606771590627339> Ditutup Oleh', value: `${interaction.user}`, inline: true },
+                    { name: '<:id:1208683703513907250> ID Tiket', value: `${ticketId}`, inline: true },
+                    { name: '<:opened:1207606769392549929> Pemilik Tiket', value: `${interaction.client.users.cache.get(author)}`, inline: true },
+                    { name: '<:closed:1207606771590627339> Penutup Tiket', value: `${interaction.user}`, inline: true },
+                    { name: '<:time:1208683705477107773> Waktu Dibuka', value: `<t:${Math.round(dateCreated / 1000)}>`, inline: true },
                     { name: '<:claimed:1207606773964480532> Diklaim Oleh', value: `${claimed}`, inline: true },
+                    { name: '\u200B', value: '\u200B', inline: true },
                     { name: '<:reason:1207606776590245919> Alasan', value: `${reason}` }
                   )
                   .setFooter({ text: moment(date).format('MM/DD/YYYY h:mm A') })
@@ -382,9 +402,12 @@ module.exports = {
                 .setColor('Yellow')
                 .setTitle('Ticket Transcript')
                 .addFields(
-                  { name: '<:opened:1207606769392549929> Dibuka Oleh', value: `${interaction.client.users.cache.get(author)}`, inline: true },
-                  { name: '<:closed:1207606771590627339> Ditutup Oleh', value: `${interaction.user}`, inline: true },
+                  { name: '<:id:1208683703513907250> ID Tiket', value: `${ticketId}`, inline: true },
+                  { name: '<:opened:1207606769392549929> Pemilik Tiket', value: `${interaction.client.users.cache.get(author)}`, inline: true },
+                  { name: '<:closed:1207606771590627339> Penutup Tiket', value: `${interaction.user}`, inline: true },
+                  { name: '<:time:1208683705477107773> Waktu Dibuka', value: `<t:${Math.round(dateCreated / 1000)}>`, inline: true },
                   { name: '<:claimed:1207606773964480532> Diklaim Oleh', value: `${claimed}`, inline: true },
+                  { name: '\u200B', value: '\u200B', inline: true },
                   { name: '<:reason:1207606776590245919> Alasan', value: `${reason}` }
                 )
                 .setFooter({ text: moment(date).format('MM/DD/YYYY h:mm A') })
@@ -393,9 +416,10 @@ module.exports = {
                 new ActionRowBuilder()
                 .addComponents(
                   new ButtonBuilder()
-                  .setLabel('Transcript')
+                  .setLabel('Lihat Transcript')
                   .setStyle(ButtonStyle.Link)
                   .setURL(response.url)
+                  .setEmoji('1208683385921478738')
                 )
               ]
             });
@@ -403,6 +427,7 @@ module.exports = {
             await db.delete(`ticket-author-${deleted.id}`);
             await db.delete(`ticket-message-${deleted.id}`);
             await db.delete(`ticket-claimed-${deleted.id}`);
+            await db.delete(`ticket-id-${deleted.id}`);
           })
         });
       };
@@ -511,7 +536,9 @@ module.exports = {
             let res = await db.get(`ticket-reason-${deleted.id}`);
             let reason = res ? res : 'Tidak ada alasan yang ditentukan';
             let date = new Date();
-              
+            let dateCreated = await db.get(`ticket-create-${deleted.id}`);
+            let ticketId = await db.get(`ticket-id-${deleted.id}`);
+            
             let user = await interaction.client.users.cache.get(author);
             try {
               user.send({
@@ -521,9 +548,12 @@ module.exports = {
                   .setTitle('Tiket Ditutup')
                   .setColor('Yellow')
                   .addFields(
-                    { name: '<:opened:1207606769392549929> Dibuka Oleh', value: `${interaction.client.users.cache.get(author)}`, inline: true },
-                    { name: '<:closed:1207606771590627339> Ditutup Oleh', value: `${interaction.user}`, inline: true },
+                    { name: '<:id:1208683703513907250> ID Tiket', value: `${ticketId}`, inline: true },
+                    { name: '<:opened:1207606769392549929> Pemilik Tiket', value: `${interaction.client.users.cache.get(author)}`, inline: true },
+                    { name: '<:closed:1207606771590627339> Penutup Tiket', value: `${interaction.user}`, inline: true },
+                    { name: '<:time:1208683705477107773> Waktu Dibuka', value: `<t:${Math.round(dateCreated / 1000)}>`, inline: true },
                     { name: '<:claimed:1207606773964480532> Diklaim Oleh', value: `${claimed}`, inline: true },
+                    { name: '\u200B', value: '\u200B', inline: true },
                     { name: '<:reason:1207606776590245919> Alasan', value: `${reason}` }
                   )
                   .setFooter({ text: moment(date).format('MM/DD/YYYY h:mm A') })
@@ -537,11 +567,14 @@ module.exports = {
               embeds: [
                 new EmbedBuilder()
                 .setColor('Yellow')
-                .setTitle('Ticket Transcript')
+                .setTitle('Tiket Ditutup')
                 .addFields(
-                  { name: '<:opened:1207606769392549929> Dibuka Oleh', value: `${interaction.client.users.cache.get(author)}`, inline: true },
-                  { name: '<:closed:1207606771590627339> Ditutup Oleh', value: `${interaction.user}`, inline: true },
+                  { name: '<:id:1208683703513907250> ID Tiket', value: `${ticketId}`, inline: true },
+                  { name: '<:opened:1207606769392549929> Pemilik Tiket', value: `${interaction.client.users.cache.get(author)}`, inline: true },
+                  { name: '<:closed:1207606771590627339> Penutup Tiket', value: `${interaction.user}`, inline: true },
+                  { name: '<:time:1208683705477107773> Waktu Dibuka', value: `<t:${Math.round(dateCreated / 1000)}>`, inline: true },
                   { name: '<:claimed:1207606773964480532> Diklaim Oleh', value: `${claimed}`, inline: true },
+                  { name: '\u200B', value: '\u200B', inline: true },
                   { name: '<:reason:1207606776590245919> Alasan', value: `${reason}` }
                 )
                 .setFooter({ text: moment(date).format('MM/DD/YYYY h:mm A') })
@@ -550,9 +583,10 @@ module.exports = {
                 new ActionRowBuilder()
                 .addComponents(
                   new ButtonBuilder()
-                  .setLabel('Transcript')
+                  .setLabel('Lihat Transcript')
                   .setStyle(ButtonStyle.Link)
                   .setURL(response.url)
+                  .setEmoji('1208683385921478738')
                 )
               ]
             });
@@ -561,6 +595,7 @@ module.exports = {
             await db.delete(`ticket-message-${deleted.id}`);
             await db.delete(`ticket-claimed-${deleted.id}`);
             await db.delete(`ticket-reason-${deleted.id}`);
+            await db.delete(`ticket-id-${deleted.id}`);
             
             interaction.reply({ ephemeral: true });
           });
