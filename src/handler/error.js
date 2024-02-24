@@ -1,6 +1,6 @@
 const { Events, WebhookClient, EmbedBuilder } = require('discord.js');
-const { config } = require('../config/config');
-const webhookClient = new WebhookClient({ id: config.webhook.id, token: config.webhook.token });
+const { webhook } = require('../config/config');
+const webhookClient = new WebhookClient({ id: webhook.id, token: webhook.token });
 
 module.exports = async (client) => {
   client.on(Events.Error, async (error) => {
