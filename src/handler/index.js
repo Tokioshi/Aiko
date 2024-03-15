@@ -1,7 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
 require('./commands');
-require('./error');
 
 module.exports = async (client) => {
   const commandsPath = path.join(__dirname, '../commands');
