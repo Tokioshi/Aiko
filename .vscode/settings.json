@@ -1,6 +1,6 @@
 {
   "files.autoSave": "afterDelay",
-  "editor.fontFamily": "JetBrains Mono",
+  "editor.fontFamily": "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
   "editor.tabSize": 2,
   "vscord.app.name": "Visual Studio Code",
   "vscord.status.idle.check": false,
